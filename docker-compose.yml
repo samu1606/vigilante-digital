@@ -1,0 +1,9 @@
+services:
+  vigilante-digital:
+    build: .
+    container_name: vigilante-digital
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vigilante.rule=Host(`vigilante-digital.148-230-90-171.nip.io`)"
+      - "traefik.http.services.vigilante.loadbalancer.server.port=80"
