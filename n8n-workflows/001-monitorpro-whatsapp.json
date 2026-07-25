@@ -1,5 +1,5 @@
 {
-  "name": "MonitorPro → WhatsApp Alerts",
+  "name": "MonitorPro → WhatsApp (v2)",
   "nodes": [
     {
       "parameters": {
@@ -16,38 +16,13 @@
     },
     {
       "parameters": {
-        "jsCode": "// Uptime Kuma webhook payload:\n// { monitor: { name, url }, heartbeat: { status }, msg: \"down\"|\"up\" }\n\nconst payload = $input.first().json;\nconst monitorName = payload.monitor?.name || payload.monitor_name || 'Desconocido';\nconst monitorUrl = payload.monitor?.url || payload.monitor_url || '';\nconst status = payload.msg || (payload.heartbeat?.status === 1 ? 'up' : 'down');\nconst emoji = status === 'up' ? '✅' : '🚨';\nconst statusText = status === 'up' ? 'RECUPERADO' : 'CAÍDO';\n\nconst message = `${emoji} *MonitorPro Alerta*\\n\\n*${monitorName}* está ${statusText}\\n🔗 ${monitorUrl}\\n🕐 ${new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' })}\\n\\n⚡ Vigilante Digital`;\n\nreturn {\n  number: \"{{PHONE_NUMBER}}\",\n  message: message\n};"
+        "jsCode": "const payload = $input.first().json;\nconst name = payload.monitor?.name || 'Desconocido';\nconst url = payload.monitor?.url || '';\nconst status = payload.msg === 'up' ? 'RECUPERADO ✅' : 'CAÍDO 🚨';\n\nconst text = `🚨 *MonitorPro Alerta*\\n\\n*${name}* está ${status}\\n🔗 ${url}\\n🕐 ${new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' })}\\n\\n⚡ Vigilante Digital`;\n\nconst response = await this.helpers.httpRequest({\n  method: 'POST',\n  url: 'http://148.230.90.171:8096/message/sendText/wasapea-7c7a2c6c',\n  headers: { 'apikey': 'wasapea-evo-key-2026', 'Content-Type': 'application/json' },\n  body: { number: '573106055920', text }\n});\n\nreturn { sent: true };"
       },
-      "id": "format-message-mp",
-      "name": "Formatear Mensaje",
+      "id": "process-and-send",
+      "name": "Procesar y Enviar",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [500, 300]
-    },
-    {
-      "parameters": {
-        "url": "http://148.230.90.171:8096/message/sendText/flujodigital",
-        "method": "POST",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            { "name": "apikey", "value": "{{EVO_API_KEY}}" },
-            { "name": "Content-Type", "value": "application/json" }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": []
-        },
-        "options": {}
-      },
-      "id": "send-whatsapp-mp",
-      "name": "Enviar WhatsApp",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.1,
-      "position": [750, 300]
     },
     {
       "parameters": {
@@ -55,25 +30,19 @@
         "responseBody": "={\"ok\":true}"
       },
       "id": "response-mp",
-      "name": "Responder Webhook",
+      "name": "Responder",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [1000, 300]
+      "position": [750, 300]
     }
   ],
   "connections": {
     "MonitorPro Webhook": {
-      "main": [[ { "node": "Formatear Mensaje", "type": "main", "index": 0 } ]]
+      "main": [[ { "node": "Procesar y Enviar", "type": "main", "index": 0 } ]]
     },
-    "Formatear Mensaje": {
-      "main": [[ { "node": "Enviar WhatsApp", "type": "main", "index": 0 } ]]
-    },
-    "Enviar WhatsApp": {
-      "main": [[ { "node": "Responder Webhook", "type": "main", "index": 0 } ]]
+    "Procesar y Enviar": {
+      "main": [[ { "node": "Responder", "type": "main", "index": 0 } ]]
     }
   },
-  "settings": {
-    "saveExecutionProgress": true,
-    "callerPolicy": "workflowsFromSameOwner"
-  }
+  "settings": { "saveExecutionProgress": true, "callerPolicy": "workflowsFromSameOwner" }
 }
