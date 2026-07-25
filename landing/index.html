@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vigilante Digital — Monitoreo 24/7 + Detección de Cambios + Alertas WhatsApp</title>
+  <meta name="description" content="Vigilante Digital: Monitorea tus sitios, detecta cambios y recibe alertas instantáneas por WhatsApp. La suite completa de vigilancia digital para tu negocio.">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.6;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* Hero */
+    .hero {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: 
+        radial-gradient(ellipse 50% 50% at 70% 20%, rgba(139,92,246,0.08), transparent 50%),
+        radial-gradient(ellipse 40% 40% at 30% 70%, rgba(34,211,238,0.05), transparent 50%);
+    }
+    .hero-content { position: relative; max-width: 680px; padding: 5rem 0; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(139,92,246,0.1);
+      border: 1px solid rgba(139,92,246,0.2);
+      color: #a78bfa; font-size: 0.8rem; font-weight: 500;
+      padding: 0.35rem 1rem; border-radius: 100px; margin-bottom: 1.5rem;
+    }
+    .hero-badge .dot { width: 6px; height: 6px; background: #a78bfa; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .hero h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1.25rem; }
+    .hero h1 span { background: linear-gradient(135deg, #a78bfa, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero p { font-size: 1.1rem; color: #a1a1aa; max-width: 520px; margin-bottom: 2rem; }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.75rem 1.5rem; border-radius: 0.6rem;
+      font-size: 0.95rem; font-weight: 600; text-decoration: none;
+      transition: all 0.15s; cursor: pointer; border: none;
+    }
+    .btn-primary { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: #fff; }
+    .btn-primary:hover { background: linear-gradient(135deg, #a78bfa, #818cf8); }
+    .btn-outline { background: transparent; color: #e4e4e7; border: 1px solid #3f3f46; }
+    .btn-outline:hover { border-color: #71717a; background: rgba(255,255,255,0.03); }
+
+    /* Section */
+    .section { padding: 5rem 0; }
+    .section-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #a78bfa; margin-bottom: 0.75rem; }
+    .section h2 { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 1rem; }
+    .section > .container > p { color: #a1a1aa; max-width: 550px; margin-bottom: 3rem; }
+
+    /* Product cards */
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+    .product {
+      background: #18181b; border: 1px solid #27272a; border-radius: 0.75rem;
+      padding: 2rem; transition: border-color 0.15s; position: relative; overflow: hidden;
+    }
+    .product:hover { border-color: #3f3f46; }
+    .product::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .product.p1::before { background: linear-gradient(90deg, #22d3ee, #0891b2); }
+    .product.p2::before { background: linear-gradient(90deg, #a78bfa, #7c3aed); }
+    .product.p3::before { background: linear-gradient(90deg, #34d399, #059669); }
+    .product-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .product h3 { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .product p { font-size: 0.9rem; color: #a1a1aa; line-height: 1.6; margin-bottom: 1rem; }
+    .product-tag {
+      display: inline-block; font-size: 0.75rem; font-weight: 500;
+      padding: 0.2rem 0.6rem; border-radius: 0.3rem;
+    }
+    .product.p1 .product-tag { background: rgba(34,211,238,0.1); color: #22d3ee; }
+    .product.p2 .product-tag { background: rgba(167,139,250,0.1); color: #a78bfa; }
+    .product.p3 .product-tag { background: rgba(52,211,153,0.1); color: #34d399; }
+
+    /* Features */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    .feature { background: #18181b; border: 1px solid #27272a; border-radius: 0.75rem; padding: 1.5rem; transition: border-color 0.15s; }
+    .feature:hover { border-color: #3f3f46; }
+    .feature-icon { width: 2.5rem; height: 2.5rem; background: rgba(139,92,246,0.1); border-radius: 0.6rem; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 1rem; }
+    .feature h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .feature p { font-size: 0.9rem; color: #a1a1aa; line-height: 1.6; }
+
+    /* Comparison */
+    .comparison { overflow-x: auto; }
+    .comparison table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .comparison th { text-align: left; padding: 1rem; color: #a1a1aa; font-weight: 500; border-bottom: 1px solid #27272a; }
+    .comparison td { padding: 1rem; border-bottom: 1px solid #1c1c21; }
+    .comparison tr td:first-child { font-weight: 500; }
+    .check { color: #34d399; }
+    .cross { color: #71717a; }
+
+    /* Pricing */
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    .plan {
+      background: #18181b; border: 1px solid #27272a; border-radius: 0.75rem;
+      padding: 2rem 1.5rem; display: flex; flex-direction: column; transition: border-color 0.15s;
+    }
+    .plan.featured {
+      border-color: rgba(139,92,246,0.3);
+      background: linear-gradient(180deg, rgba(139,92,246,0.05), transparent);
+    }
+    .plan-name { font-size: 0.85rem; font-weight: 600; color: #a1a1aa; margin-bottom: 0.5rem; }
+    .plan-price { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
+    .plan-price small { font-size: 1rem; font-weight: 400; color: #71717a; }
+    .plan-save { font-size: 0.8rem; color: #34d399; margin-bottom: 1.5rem; }
+    .plan-features { list-style: none; flex: 1; margin-bottom: 2rem; }
+    .plan-features li { font-size: 0.9rem; padding: 0.35rem 0; color: #a1a1aa; display: flex; align-items: center; gap: 0.5rem; }
+    .plan-features li::before { content: '✓'; color: #a78bfa; font-weight: 700; font-size: 0.8rem; }
+    .plan .btn { width: 100%; justify-content: center; }
+
+    /* CTA */
+    .cta { text-align: center; padding: 5rem 0; }
+    .cta h2 { font-size: 2rem; margin-bottom: 1rem; }
+    .cta p { color: #a1a1aa; margin-bottom: 2rem; }
+
+    /* Footer */
+    footer { border-top: 1px solid #27272a; padding: 2rem 0; text-align: center; font-size: 0.85rem; color: #71717a; }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .hero-actions { flex-direction: column; }
+      .hero-actions .btn { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge"><span class="dot"></span> Suite de Vigilancia Digital</div>
+      <h1>Tres servicios.<br><span>Un solo paquete.</span></h1>
+      <p>MonitorPro vigila tus sitios 24/7. CambioTrack detecta cualquier cambio en páginas web. Y todo llega instantáneo a tu WhatsApp. Nunca más te enteres tarde.</p>
+      <div class="hero-actions">
+        <a href="#planes" class="btn btn-primary">Ver planes →</a>
+        <a href="#productos" class="btn btn-outline">Conoce los productos</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="productos" style="background: #0c0c12;">
+  <div class="container">
+    <div class="section-label">La Suite</div>
+    <h2>Tres herramientas, una misión</h2>
+    <p>Cada una hace algo distinto. Juntas no dejan pasar nada.</p>
+    <div class="products-grid">
+      <div class="product p1">
+        <div class="product-icon">🖥️</div>
+        <div class="product-tag">MonitorPro</div>
+        <h3>Monitoreo Uptime 24/7</h3>
+        <p>Sitios web, APIs, servidores, bases de datos. Verificación cada minuto con alertas cuando algo cae.</p>
+      </div>
+      <div class="product p2">
+        <div class="product-icon">🔍</div>
+        <div class="product-tag">CambioTrack</div>
+        <h3>Detección de Cambios</h3>
+        <p>Vigila páginas de competencia, precios, pliegos de licitación. Te avisa cuando algo cambia.</p>
+      </div>
+      <div class="product p3">
+        <div class="product-icon">💬</div>
+        <div class="product-tag">WhatsApp Alerts</div>
+        <h3>Alertas Instantáneas</h3>
+        <p>Todas las alertas de MonitorPro y CambioTrack llegan directo a tu WhatsApp. Sin apps, sin correos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-label">¿Para quién es?</div>
+    <h2>Casos de uso reales</h2>
+    <p>No es teoría. Esto es lo que ya pueden hacer tus servicios.</p>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-icon">🏪</div>
+        <h3>E-commerce</h3>
+        <p>Monitorea que tu tienda no se caiga. Vigila los precios de tu competencia. Si cambian, WhatsApp.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚖️</div>
+        <h3>Abogados</h3>
+        <p>Detecta cambios en boletines oficiales, nuevas licitaciones, resoluciones. No pierdas un caso por no verlo.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🏗️</div>
+        <h3>Constructoras</h3>
+        <p>Vigila SECOP, Colombia Compra, pliegos de contratación. Llega primero a las licitaciones.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🏥</div>
+        <h3>Médicos y clínicas</h3>
+        <p>Monitorea disponibilidad en agendas, cambios en normativas del ministerio, alertas de farmacovigilancia.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🏦</div>
+        <h3>Fintech</h3>
+        <p>Uptime de APIs de pago, cambios en tasas de interés, alertas de nuevos competidores entrando al mercado.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📊</div>
+        <h3>Agencias de marketing</h3>
+        <p>Monitorea los sitios de tus clientes. Reportes de uptime profesional. Alerta cuando la competencia publica algo nuevo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background: #0c0c12;">
+  <div class="container">
+    <div class="section-label">Comparación</div>
+    <h2>¿Por qué no contratar por separado?</h2>
+    <p>Porque con Vigilante Digital pagas menos y tienes todo integrado.</p>
+    <div class="comparison">
+      <table>
+        <thead>
+          <tr><th></th><th>Por separado</th><th>Vigilante Digital</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Monitoreo Uptime</td><td><span class="check">✓</span> $9/mes</td><td><span class="check">✓</span> Incluido</td></tr>
+          <tr><td>Detección de Cambios</td><td><span class="check">✓</span> $9/mes</td><td><span class="check">✓</span> Incluido</td></tr>
+          <tr><td>Alertas WhatsApp</td><td><span class="cross">✗</span></td><td><span class="check">✓</span> Incluido</td></tr>
+          <tr><td>Integración automática</td><td><span class="cross">✗</span></td><td><span class="check">✓</span> Plug & Play</td></tr>
+          <tr><td>Soporte unificado</td><td><span class="cross">✗</span></td><td><span class="check">✓</span> Un solo contacto</td></tr>
+          <tr style="font-weight:600"><td>Total</td><td>$18/mes</td><td style="color:#34d399">$16/mes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="planes">
+  <div class="container">
+    <div class="section-label">Planes</div>
+    <h2>Un plan. Simple.</h2>
+    <p>14 días de prueba gratis. Sin tarjeta de crédito.</p>
+    <div class="pricing-grid">
+      <div class="plan">
+        <div class="plan-name">MonitorPro Solo</div>
+        <div class="plan-price">$9<small>/mes</small></div>
+        <ul class="plan-features">
+          <li>Hasta 10 monitores</li>
+          <li>Alertas email + Telegram</li>
+          <li>Historial 7 días</li>
+          <li>Sin detección de cambios</li>
+          <li>Sin WhatsApp</li>
+        </ul>
+        <a href="#" class="btn btn-outline">Empezar</a>
+      </div>
+      <div class="plan featured">
+        <div class="plan-name">⭐ Vigilante Digital</div>
+        <div class="plan-price">$16<small>/mes</small></div>
+        <div class="plan-save">Ahorras $2/mes vs por separado</div>
+        <ul class="plan-features">
+          <li>10 monitores + 10 watchers</li>
+          <li>Alertas WhatsApp incluidas</li>
+          <li>Historial 30 días</li>
+          <li>Detección de cambios web</li>
+          <li>Soporte prioritario</li>
+          <li>Setup inicial gratis</li>
+        </ul>
+        <a href="#" class="btn btn-primary">Prueba 14 días gratis →</a>
+      </div>
+      <div class="plan">
+        <div class="plan-name">CambioTrack Solo</div>
+        <div class="plan-price">$9<small>/mes</small></div>
+        <ul class="plan-features">
+          <li>Hasta 10 watchers</li>
+          <li>Alertas email</li>
+          <li>Historial 7 días</li>
+          <li>Sin monitoreo uptime</li>
+          <li>Sin WhatsApp</li>
+        </ul>
+        <a href="#" class="btn btn-outline">Empezar</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="container">
+    <h2>No dejes que tu competencia se entere antes que tú</h2>
+    <p>14 días de Vigilante Digital gratis. Sin trampas. Cancelas cuando quieras.</p>
+    <a href="#" class="btn btn-primary" style="font-size:1rem; padding:0.85rem 2rem;">Quiero mi prueba gratis →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>Vigilante Digital — Suite de MonitorPro + CambioTrack. Construido con ❤️ sobre software open source. © 2026</p>
+  </div>
+</footer>
+
+</body>
+</html>

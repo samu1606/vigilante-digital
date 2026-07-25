@@ -1,0 +1,79 @@
+{
+  "name": "CambioTrack → WhatsApp Alerts",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cambiotrack-alert",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-cambiotrack",
+      "name": "CambioTrack Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Changedetection.io webhook payload:\n// { watch_uuid, title, url, current_snapshot, diff }\n\nconst payload = $input.first().json;\nconst title = payload.title || payload.name || 'Sin título';\nconst pageUrl = payload.url || '';\nconst diff = payload.diff || payload.current_snapshot || '';\n\nconst message = `🔍 *CambioTrack Alerta*\\n\\n*${title}* detectó cambios\\n🔗 ${pageUrl}\\n🕐 ${new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' })}\\n\\n⚡ Vigilante Digital`;\n\nreturn {\n  number: \"{{PHONE_NUMBER}}\",\n  message: message\n};"
+      },
+      "id": "format-message-ct",
+      "name": "Formatear Mensaje",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://148.230.90.171:8096/message/sendText/flujodigital",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "{{EVO_API_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": []
+        },
+        "options": {}
+      },
+      "id": "send-whatsapp-ct",
+      "name": "Enviar WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [750, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\":true}"
+      },
+      "id": "response-ct",
+      "name": "Responder Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1000, 300]
+    }
+  ],
+  "connections": {
+    "CambioTrack Webhook": {
+      "main": [[ { "node": "Formatear Mensaje", "type": "main", "index": 0 } ]]
+    },
+    "Formatear Mensaje": {
+      "main": [[ { "node": "Enviar WhatsApp", "type": "main", "index": 0 } ]]
+    },
+    "Enviar WhatsApp": {
+      "main": [[ { "node": "Responder Webhook", "type": "main", "index": 0 } ]]
+    }
+  },
+  "settings": {
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}

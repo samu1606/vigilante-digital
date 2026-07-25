@@ -1,0 +1,79 @@
+{
+  "name": "MonitorPro → WhatsApp Alerts",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "monitorpro-alert",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-monitorpro",
+      "name": "MonitorPro Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Uptime Kuma webhook payload:\n// { monitor: { name, url }, heartbeat: { status }, msg: \"down\"|\"up\" }\n\nconst payload = $input.first().json;\nconst monitorName = payload.monitor?.name || payload.monitor_name || 'Desconocido';\nconst monitorUrl = payload.monitor?.url || payload.monitor_url || '';\nconst status = payload.msg || (payload.heartbeat?.status === 1 ? 'up' : 'down');\nconst emoji = status === 'up' ? '✅' : '🚨';\nconst statusText = status === 'up' ? 'RECUPERADO' : 'CAÍDO';\n\nconst message = `${emoji} *MonitorPro Alerta*\\n\\n*${monitorName}* está ${statusText}\\n🔗 ${monitorUrl}\\n🕐 ${new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' })}\\n\\n⚡ Vigilante Digital`;\n\nreturn {\n  number: \"{{PHONE_NUMBER}}\",\n  message: message\n};"
+      },
+      "id": "format-message-mp",
+      "name": "Formatear Mensaje",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://148.230.90.171:8096/message/sendText/flujodigital",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "{{EVO_API_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": []
+        },
+        "options": {}
+      },
+      "id": "send-whatsapp-mp",
+      "name": "Enviar WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [750, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\":true}"
+      },
+      "id": "response-mp",
+      "name": "Responder Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1000, 300]
+    }
+  ],
+  "connections": {
+    "MonitorPro Webhook": {
+      "main": [[ { "node": "Formatear Mensaje", "type": "main", "index": 0 } ]]
+    },
+    "Formatear Mensaje": {
+      "main": [[ { "node": "Enviar WhatsApp", "type": "main", "index": 0 } ]]
+    },
+    "Enviar WhatsApp": {
+      "main": [[ { "node": "Responder Webhook", "type": "main", "index": 0 } ]]
+    }
+  },
+  "settings": {
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}
