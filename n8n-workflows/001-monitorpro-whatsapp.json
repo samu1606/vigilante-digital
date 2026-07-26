@@ -1,48 +1,73 @@
 {
-  "name": "MonitorPro → WhatsApp (v2)",
+  "name": "MonitorPro → WhatsApp (v3 multi-user)",
   "nodes": [
     {
       "parameters": {
         "httpMethod": "POST",
         "path": "monitorpro-alert",
-        "responseMode": "responseNode",
-        "options": {}
+        "responseMode": "responseNode"
       },
-      "id": "webhook-monitorpro",
-      "name": "MonitorPro Webhook",
+      "id": "webhook",
+      "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [250, 300]
+      "position": [
+        250,
+        300
+      ],
+      "webhookId": "monitorpro-alert-v3"
     },
     {
       "parameters": {
-        "jsCode": "const payload = $input.first().json;\nconst name = payload.monitor?.name || 'Desconocido';\nconst url = payload.monitor?.url || '';\nconst status = payload.msg === 'up' ? 'RECUPERADO ✅' : 'CAÍDO 🚨';\n\nconst text = `🚨 *MonitorPro Alerta*\\n\\n*${name}* está ${status}\\n🔗 ${url}\\n🕐 ${new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' })}\\n\\n⚡ Vigilante Digital`;\n\nconst response = await this.helpers.httpRequest({\n  method: 'POST',\n  url: 'http://148.230.90.171:8096/message/sendText/wasapea-7c7a2c6c',\n  headers: { 'apikey': 'wasapea-evo-key-2026', 'Content-Type': 'application/json' },\n  body: { number: '573106055920', text }\n});\n\nreturn { sent: true };"
+        "jsCode": "const http = this.helpers.httpRequest;\n\n// ⚙️ CONFIG\nasync function sendMsg(phone, text) {\n  return http({\n    method: 'POST',\n    url: 'http://148.230.90.171:8096/message/sendText/wasapea-7c7a2c6c',\n    headers: { 'apikey': 'wasapea-evo-key-2026', 'Content-Type': 'application/json' },\n    body: { number: phone, text: text }\n  });\n}\n\n\n// 📱 SUBSCRIBERS — plan 'pro' gets monitor alerts\nconst subscribers = [\n  { phone: '573106055920', plan: 'free' },\n  // { phone: '573001234567', plan: 'pro' },\n];\n\n\n// 1. Parse webhook payload from Uptime Kuma\nconst payload = $input.first().json;\nconst name = payload.monitor?.name || payload.msg || 'Unknown';\nconst status = payload.heartbeat?.status === 0 ? '🔴 CAÍDO' : '🟢 RECUPERADO';\nconst url = payload.monitor?.url || '';\n\nconst text = '🛡️ *MonitorPro Alerta*\\n\\n' +\n  '*' + name + '* está ' + status + '\\n' +\n  '🔗 ' + url + '\\n' +\n  '🕐 ' + new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' }) + '\\n\\n' +\n  '⚡ *Vigilante Digital*';\n\n// 2. Send to pro subscribers\nconst results = [];\nfor (const sub of subscribers) {\n  try {\n    await sendMsg(sub.phone, text);\n    results.push({ phone: sub.phone, status: 'sent' });\n  } catch (e) {\n    results.push({ phone: sub.phone, status: 'error', error: e.message });\n  }\n}\n\nreturn { alert: name, status: status, sent: results.length, results };"
       },
-      "id": "process-and-send",
-      "name": "Procesar y Enviar",
+      "id": "send",
+      "name": "Send Alert to All",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [500, 300]
+      "position": [
+        500,
+        300
+      ]
     },
     {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={\"ok\":true}"
-      },
-      "id": "response-mp",
-      "name": "Responder",
+      "parameters": {},
+      "id": "respond",
+      "name": "Respond 200",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [750, 300]
+      "position": [
+        750,
+        300
+      ]
     }
   ],
   "connections": {
-    "MonitorPro Webhook": {
-      "main": [[ { "node": "Procesar y Enviar", "type": "main", "index": 0 } ]]
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Send Alert to All",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
-    "Procesar y Enviar": {
-      "main": [[ { "node": "Responder", "type": "main", "index": 0 } ]]
+    "Send Alert to All": {
+      "main": [
+        [
+          {
+            "node": "Respond 200",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "settings": { "saveExecutionProgress": true, "callerPolicy": "workflowsFromSameOwner" }
+  "settings": {
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  }
 }
