@@ -1,0 +1,41 @@
+{
+  "name": "CambioTrack → WhatsApp (v4 Supabase)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cambiotrack-alert",
+        "responseMode": "responseNode"
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "cambiotrack-alert-v4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const http = this.helpers.httpRequest;\n\nconst SUPABASE_URL = 'https://zavabpchdvssvdnwtuyu.supabase.co';\nconst SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphdmFicGNoZHZzc3Zkbnd0dXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNDA4NDgsImV4cCI6MjA5OTkxNjg0OH0.bGIex-jior3Q48OAwXRmuwJbt6SZ_MQMiyiieY4WDm4';\n\nasync function getSubscribers() {\n  const url = SUPABASE_URL + '/rest/v1/alert_subscribers?product=eq.vigilante&active=eq.true&select=phone';\n  try {\n    const data = await http({ method: 'GET', url, headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } });\n    return Array.isArray(data) ? data : [];\n  } catch (e) { return []; }\n}\n\n// 1. Parse webhook from Changedetection.io\nconst payload = $input.first().json;\nconst title = payload.title || payload.watch_title || 'Page Changed';\nconst url = payload.url || payload.watch_url || '';\nconst diff = payload.diff_url || '';\n\nconst text = '🔍 *CambioTrack Alert*\\n\\n' +\n  '📄 *' + title + '*\\n' +\n  '🔗 ' + url + '\\n' +\n  (diff ? '📸 Diff: ' + diff + '\\n' : '') +\n  '🕐 ' + new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' }) + '\\n\\n' +\n  '⚡ *Vigilante Digital*';\n\n// 2. Send to all active subscribers\nconst subscribers = await getSubscribers();\nconst results = [];\nfor (const sub of subscribers) {\n  try {\n    await http({\n      method: 'POST',\n      url: 'http://148.230.90.171:8096/message/sendText/wasapea-7c7a2c6c',\n      headers: { 'apikey': 'wasapea-evo-key-2026', 'Content-Type': 'application/json' },\n      body: { number: sub.phone, text: text }\n    });\n    results.push({ phone: sub.phone, status: 'sent' });\n  } catch (e) {\n    results.push({ phone: sub.phone, status: 'error' });\n  }\n}\n\nreturn { title: title, sent: results.length, results };\n"
+      },
+      "id": "send",
+      "name": "Send Alert to Subscribers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {},
+      "id": "respond",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [750, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {"main": [[{"node": "Send Alert to Subscribers", "type": "main", "index": 0}]]},
+    "Send Alert to Subscribers": {"main": [[{"node": "Respond 200", "type": "main", "index": 0}]]}
+  },
+  "settings": {"saveExecutionProgress": true, "callerPolicy": "workflowsFromSameOwner"}
+}
