@@ -1,7 +1,9 @@
 services:
   vigilante-digital:
-    build: .
+    image: nginx:alpine
     container_name: vigilante-digital
     restart: always
+    volumes:
+      - ./landing/index.html:/usr/share/nginx/html/index.html:ro
     expose:
       - "80"
